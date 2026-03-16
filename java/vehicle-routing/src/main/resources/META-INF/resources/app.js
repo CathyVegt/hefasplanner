@@ -12,6 +12,7 @@ const solveButton = $('#solveButton');
 const stopSolvingButton = $('#stopSolvingButton');
 const vehiclesTable = $('#vehicles');
 const analyzeButton = $('#analyzeButton');
+const exportScheduleButton = $('#exportScheduleButton');
 
 /*************************************** Map constants and variable definitions  **************************************/
 
@@ -82,6 +83,7 @@ $(document).ready(function () {
     solveButton.click(solve);
     stopSolvingButton.click(stopSolving);
     analyzeButton.click(analyze);
+    exportScheduleButton.click(exportSchedule);
     refreshSolvingButtons(false);
 
     // HACK to allow vis-timeline to work within Bootstrap tabs
@@ -548,6 +550,89 @@ function stopSolving() {
     }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Stop solving failed.", xhr);
     });
+}
+
+
+function exportSchedule() {
+    if (!scheduleId || !loadedRoutePlan) {
+        alert("Please solve a route plan before exporting a schedule.");
+        return;
+    }
+
+    const solvingStillRunning = loadedRoutePlan.solverStatus == null || loadedRoutePlan.solverStatus !== "NOT_SOLVING";
+    if (solvingStillRunning) {
+        alert("Export is only available after solving has finished.");
+        return;
+    }
+
+    const exportUrl = `/route-plans/${scheduleId}/export`;
+    fetch(exportUrl, {
+        headers: {
+            Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        }
+    }).then(async function (response) {
+        if (!response.ok) {
+            let errorPayload;
+            try {
+                errorPayload = await response.json();
+            } catch (_) {
+                errorPayload = {
+                    message: response.statusText,
+                    code: response.status,
+                    id: "----"
+                };
+            }
+            throw {responseJSON: errorPayload, status: response.status, statusText: response.statusText};
+        }
+        const blob = await response.blob();
+        await saveExportedSchedule(blob, `route-plan-${scheduleId}.xlsx`);
+    }).catch(function (error) {
+        if (error && error.responseJSON) {
+            showError("Exporting schedule failed.", error);
+            return;
+        }
+        showError("Exporting schedule failed.", {
+            responseJSON: {
+                message: error?.message || "Unexpected export error.",
+                code: "EXPORT_FAILED",
+                id: "----",
+                details: ""
+            }
+        });
+    });
+}
+
+async function saveExportedSchedule(blob, suggestedName) {
+    if (window.showSaveFilePicker) {
+        try {
+            const fileHandle = await window.showSaveFilePicker({
+                suggestedName,
+                types: [{
+                    description: "Excel workbook",
+                    accept: {
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"]
+                    }
+                }]
+            });
+            const writable = await fileHandle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+            return;
+        } catch (error) {
+            if (error.name === "AbortError") {
+                return;
+            }
+        }
+    }
+
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = suggestedName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
 }
 
 function fetchDemoData() {
