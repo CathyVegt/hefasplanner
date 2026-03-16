@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
@@ -219,6 +220,12 @@ public class VehicleRoutePlanResource {
     public Response exportRoutePlan(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
         VehicleRoutePlan routePlan = getRoutePlanAndCheckForExceptions(jobId);
+        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
+        if (solverStatus != SolverStatus.NOT_SOLVING) {
+            throw new VehicleRoutingSolverException(jobId, Response.Status.CONFLICT,
+                    "Schedule export is only available after solving has finished.");
+        }
+
         byte[] workbookBytes = createWorkbook(routePlan);
         return Response.ok(workbookBytes)
                 .header("Content-Disposition", "attachment; filename=route-plan-" + jobId + ".xlsx")
@@ -252,25 +259,29 @@ public class VehicleRoutePlanResource {
 
 
     private byte[] createWorkbook(VehicleRoutePlan routePlan) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+//        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("schedule");
             Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("startDateTime");
-            headerRow.createCell(1).setCellValue("endDateTime");
-            headerRow.createCell(2).setCellValue("VisitId");
-            headerRow.createCell(3).setCellValue("VehicleId");
+            headerRow.createCell(0).setCellValue("start");
+            headerRow.createCell(1).setCellValue("eind");
+            headerRow.createCell(2).setCellValue("contract");
+            headerRow.createCell(3).setCellValue("opdrachtType");
+            headerRow.createCell(4).setCellValue("medewerker");
+
 
             int rowNumber = 1;
             for (Visit visit : routePlan.getVisits()) {
                 Row row = sheet.createRow(rowNumber++);
-                row.createCell(0).setCellValue(routePlan.getStartDateTime() == null ? "" : routePlan.getStartDateTime().format(formatter));
-                row.createCell(1).setCellValue(routePlan.getEndDateTime() == null ? "" : routePlan.getEndDateTime().format(formatter));
-                row.createCell(2).setCellValue(visit.getId());
-                row.createCell(3).setCellValue(visit.getVehicle() == null ? "" : visit.getVehicle().getId());
+                row.createCell(0).setCellValue(formatDateTime(visit.getArrivalTime(), formatter));
+                row.createCell(1).setCellValue(formatDateTime(visit.getDepartureTime(), formatter));
+                row.createCell(2).setCellValue(visit.getId() == null ? "" : visit.getId());
+                row.createCell(3).setCellValue(visit.getTaskType() == null ? "" : visit.getTaskType().name());
+                row.createCell(4).setCellValue(getTechnicianName(visit));
             }
 
-            for (int i = 0; i <= 3; i++) {
+            for (int i = 0; i <= 4; i++) {
                 sheet.autoSizeColumn(i);
             }
             workbook.write(outputStream);
@@ -279,6 +290,19 @@ public class VehicleRoutePlanResource {
             throw new IllegalStateException("Unable to export route plan to Excel.", e);
         }
     }
+
+    private static String formatDateTime(LocalDateTime dateTime, DateTimeFormatter formatter) {
+        return dateTime == null ? "" : dateTime.format(formatter);
+    }
+
+    private static String getTechnicianName(Visit visit) {
+        if (visit.getVehicle() == null || visit.getVehicle().getTechnician() == null) {
+            return "";
+        }
+        String technicianName = visit.getVehicle().getTechnician().getName();
+        return technicianName == null ? "" : technicianName;
+    }
+
 
 
     private VehicleRoutePlan getRoutePlanAndCheckForExceptions(String jobId) {
