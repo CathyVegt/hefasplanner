@@ -13,15 +13,35 @@ public class Technician {
         this.skills = skills;
     }
 
+    public Technician() {
+    }
+
+
     //region GETTERS
     // -------------------------------
     public String getName(){
         return name;
     }
 
+    public void setName(String name){this.name = name;}
+
     public Location getLocation(){
         return homeLocation;
     }
+
+    public void setHomeLocation(Location homeLocation) {
+        this.homeLocation = homeLocation;
+    }
+
+    public Map<BrandId, Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Map<BrandId, Skill> skills) {
+        this.skills = skills;
+    }
+
+
     // -------------------------------
     //endregion
 
