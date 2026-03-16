@@ -1,0 +1,198 @@
+[
+  {
+    "name": "A",
+    "latitude": 51.92809715247360,
+    "longitude": 6.07789246810776,
+    "brandSkills": [
+      {
+        "brand": "Hertek",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "siemens sinteso",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "siemens cerberus (FC7xx)",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "Siemens cerberus (FC360)",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "siemens Overig",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+
+      },
+      {
+        "brand": "Bosch",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+
+      },
+      {
+        "brand": "notifier NF3000",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "notifier Pearl",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "Smartcell",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "NSC",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "Brinkman & Germeraad",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "Telesignal TSEC 3000",
+        "lvl": 0,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "CSL Dual com",
+        "lvl": 0,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      }
+    ]
+  },
+  {
+    "name": "B",
+    "latitude": 51.33394903803990,
+    "longitude": 5.98121147978097,
+    "brandSkills": [
+      {
+        "brand": "Hertek",
+        "lvl": 3,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "siemens sinteso",
+        "lvl": 2,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "siemens cerberus (FC7xx)",
+        "lvl": 2,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "Siemens cerberus (FC360)",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "siemens Overig",
+        "lvl": 2,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": false
+
+      },
+      {
+        "brand": "Bosch",
+        "lvl": 3,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": false
+
+      },
+      {
+        "brand": "notifier NF3000",
+        "lvl": 4,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": true
+      },
+      {
+        "brand": "notifier Pearl",
+        "lvl": 2,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "Smartcell",
+        "lvl": 5,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": true
+      },
+      {
+        "brand": "NSC",
+        "lvl": 5,
+        "OP": true,
+        "Onderhoud": true,
+        "Inbedrijfstellen": true
+      },
+      {
+        "brand": "Brinkman & Germeraad",
+        "lvl": 1,
+        "OP": true,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "Telesignal TSEC 3000",
+        "lvl": 0,
+        "Onderhoud": false,
+        "Inbedrijfstellen": false
+      },
+      {
+        "brand": "CSL Dual com",
+        "lvl": 3,
+        "Onderhoud": true,
+        "Inbedrijfstellen": true
+      }
+    ]
+  }
+]
