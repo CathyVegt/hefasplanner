@@ -17,6 +17,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam; //ch
 import jakarta.ws.rs.core.MediaType;
 
 import org.acme.vehiclerouting.domain.*;
@@ -40,27 +41,45 @@ public class VehicleRouteDemoResource {
     }
 
     public VehicleRoutePlan build(DemoData demoData){
-        return loadDataWithParser(demoData);
+//        return loadDataWithParser(demoData);
+        if (demoData == DemoData.LOADDATA) { //ch
+            return loadDataWithParameters(LocalDate.now(), LocalDate.now().plusDays(1), LocalTime.of(8, 30), LocalTime.of(16, 30));
+        }
+        throw new IllegalArgumentException("Unsupported demo data: " + demoData);
+
     }
 
-    public VehicleRoutePlan loadDataWithParser(DemoData demoData){
-        String name = "demo";
+//    public VehicleRoutePlan loadDataWithParser(DemoData demoData){
+    public VehicleRoutePlan loadDataWithParameters(LocalDate startDate, LocalDate endDate, LocalTime shiftStart,
+            LocalTime shiftEnd) {
+
+            String name = "demo";
         try{
 
-            String[] shiftTimes = DataParser.askShiftTimes();
-            LocalDateTime[] horizon = DataParser.askDates(shiftTimes[0], shiftTimes[1]);
+//            String[] shiftTimes = DataParser.askShiftTimes();
+//            LocalDateTime[] horizon = DataParser.askDates(shiftTimes[0], shiftTimes[1]);
+            LocalDateTime horizonStart = LocalDateTime.of(startDate, shiftStart);
+            LocalDateTime horizonEnd = LocalDateTime.of(endDate, shiftEnd);
+            if (horizonEnd.isBefore(horizonStart)) {
+                throw new IllegalArgumentException("endDate/shiftEnd must be equal to or after startDate/shiftStart.");
+            }
+
             DataParser.BrandTechPair brandTechPair =  DataParser.readEmployees();
             Map<String, BrandId> brandCatalog = brandTechPair.getBrandCatalog();
             List<Technician> technicians = brandTechPair.getTechnicians();
-            List<Visit> visits  = DataParser.readVisits(horizon[0], horizon[1], brandCatalog);
-
+//            List<Visit> visits  = DataParser.readVisits(horizon[0], horizon[1], brandCatalog);
+            List<Visit> visits  = DataParser.readVisits(horizonStart, horizonEnd, brandCatalog);
             // create vehicles:
             List<Vehicle> vehicles = new ArrayList<>();
-            long n_days = ChronoUnit.DAYS.between(horizon[0].toLocalDate(), horizon[1].toLocalDate()) + 1; // +1 for including.
+//            long n_days = ChronoUnit.DAYS.between(horizon[0].toLocalDate(), horizon[1].toLocalDate()) + 1; // +1 for including.
+            long n_days = ChronoUnit.DAYS.between(horizonStart.toLocalDate(), horizonEnd.toLocalDate()) + 1; // +1 for including.
             System.out.println(String.format("n_days %d", n_days) );
             for(int i = 0; i <n_days; i++){
-                LocalDateTime minStartTime = horizon[0].plusDays(i);
-                LocalDateTime maxEndTime = horizon[1].minusDays(n_days-i);
+//                LocalDateTime minStartTime = horizon[0].plusDays(i);
+//                LocalDateTime maxEndTime = horizon[1].minusDays(n_days-i);
+                LocalDateTime minStartTime = horizonStart.plusDays(i);
+                LocalDateTime maxEndTime = horizonEnd.minusDays(n_days-i);
+
                 System.out.println(minStartTime);
                 System.out.println(maxEndTime);
                 for(Technician technician : technicians){
@@ -83,8 +102,10 @@ public class VehicleRouteDemoResource {
                     name,
                     southWestCorner,
                     northEastCorner,
-                    horizon[0],
-                    horizon[1],
+//                    horizon[0],
+//                    horizon[1],
+                    horizonStart,
+                    horizonEnd,
                     vehicles,
                     visits
             );
@@ -113,8 +134,21 @@ public class VehicleRouteDemoResource {
     @GET
     @Path("/{demoDataId}")
     public VehicleRoutePlan generate(@Parameter(description = "Unique identifier of the demo data.",
-            required = true) @PathParam("demoDataId") DemoData demoData) {
-        return build(demoData);
+//            required = true) @PathParam("demoDataId") DemoData demoData) {
+        required = true) @PathParam("demoDataId") DemoData demoData,
+        @QueryParam("startDate") String startDate,
+        @QueryParam("endDate") String endDate,
+        @QueryParam("shiftStart") String shiftStart,
+        @QueryParam("shiftEnd") String shiftEnd) {
+            if (demoData == DemoData.LOADDATA && startDate != null && endDate != null && shiftStart != null && shiftEnd != null) {
+                return loadDataWithParameters(
+                        LocalDate.parse(startDate),
+                        LocalDate.parse(endDate),
+                        LocalTime.parse(shiftStart),
+                        LocalTime.parse(shiftEnd));
+            }
+
+            return build(demoData);
     }
 
     //endregion
